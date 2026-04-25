@@ -206,6 +206,12 @@ GRPO training uses values normalised to [0.0, 1.0].*
 
 > Note: v1.0 uses the same Flask app across all curriculum stages.
 > Stage 2 and 3 variant files are planned for v1.1.
+> **Note on training:** The 50-episode run above is an inference evaluation 
+> loop — the model generates actions, receives rewards from the live environment, 
+> and reward curves are logged to W&B. Full GRPO weight-update training 
+> (GRPOTrainer) requires dedicated GPU compute and is the planned next step.
+> The environment, reward pipeline, and rollout loop are fully connected 
+> and ready for a training run.  
 
 ## ▶️ Running Locally
 
