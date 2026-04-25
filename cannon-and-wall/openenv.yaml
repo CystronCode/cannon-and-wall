@@ -1,0 +1,13 @@
+name: cannon-and-wall
+version: 1.0.0
+author: Jairaj S
+theme: self-improvement+multi-agent
+base_class: Environment
+entry: environment/server.py
+client: client/client.py
+port: 7860
+tags:
+  - security
+  - red-team
+  - self-play
+  - rl
