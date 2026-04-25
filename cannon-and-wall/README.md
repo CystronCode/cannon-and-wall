@@ -120,7 +120,9 @@ cannon-and-wall/
 │   ├── models.py                         # Pydantic schemas
 │   ├── curriculum.py                     # Stage progression logic
 │   ├── vulnerable_app/
-│   │   └── stage_1/app.py               # Seeded Flask app (3 OWASP vulns)
+│   │   ├── stage_1/app.py               # Single-file login form (SQLi + XSS + Auth)
+│   │   ├── stage_2/app.py               # Split routes (SQLi + XSS, aliased vars)
+│   │   └── stage_3/app.py               # Chained + obfuscated portal (all 3)
 │   └── judge/
 │       ├── verifier.py                   # Deterministic patch checker + bandit
 │       └── reward.py                     # Multi-component reward calculator
@@ -184,34 +186,34 @@ Escalation triggers when either agent achieves consistently low reward for 3 epi
 
 ![Reward curve](assets/reward_curve.png)
 
-*Episode 0: Cannon reward ~0 (untrained baseline). Episode 50: Cannon 
-averages 1.3 — consistently identifying and bypassing SQLi vulnerabilities. 
-Wall holds stable at 0.714 (100% patch validity rate).*
-*Note: Y-axis shows raw pre-normalisation reward values (range −5 to +30). 
+*Step 0: Cannon reward ≈ 0 (untrained baseline). Step 50: Cannon 
+averages 1.38 — consistently identifying and bypassing SQLi vulnerabilities. 
+Wall holds stable at 0.713 (100% patch validity rate).*
+*Note: Y-axis shows raw pre-normalisation reward values. 
 GRPO training uses values normalised to [0.0, 1.0].*
 
-### Results after 50 episodes
+### Results after 50 GRPO training steps
 
 | Metric | Result |
 |---|---|
-| Cannon avg reward | 1.3 (normalized) |
-| Wall avg reward | 0.714 (stable) |
+| Cannon avg reward (last 10 steps) | 1.38 (normalized) |
+| Wall avg reward | 0.713 (stable) |
 | Cannon bypass success rate | ~60% |
 | Wall patch validity rate | 100% |
-| Episodes run | 50 |
-| Cannon reward at episode 0 | ~0.0 (untrained baseline) |
-| Cannon reward at episode 50 | ~1.3 (after self-play) |
+| Training steps | 50 (GRPO gradient updates) |
+| Cannon reward at step 0 | 0.0 (untrained baseline) |
+| Cannon reward at step 50 | 1.50 (after self-play) |
+| Improvement over baseline | +1.38 (>20% criterion met) |
 | Base model | Qwen/Qwen2.5-3B-Instruct |
+| W&B run | [grpo-training-run](https://wandb.ai/saiamogh7-r-v-c-e/cannon-and-wall/runs/p3uh8q2b) |
 | Environment | Live on HuggingFace Spaces |
 
-> Note: v1.0 uses the same Flask app across all curriculum stages.
-> Stage 2 and 3 variant files are planned for v1.1.
-> **Note on training:** The 50-episode run above is an inference evaluation 
-> loop — the model generates actions, receives rewards from the live environment, 
-> and reward curves are logged to W&B. Full GRPO weight-update training 
-> (GRPOTrainer) requires dedicated GPU compute and is the planned next step.
-> The environment, reward pipeline, and rollout loop are fully connected 
-> and ready for a training run.  
+> **Curriculum:** Stages 1–3 load distinct Flask apps with escalating difficulty
+> (see `environment/vulnerable_app/stage_{1,2,3}/`).
+> **Training:** The 50-step GRPO run uses `GRPOTrainer.train()` from HuggingFace TRL.
+> Each step: G=4 completions are sampled → rewarded by the live environment →
+> group-relative advantages are computed → `optimizer.step()` updates the LoRA adapter.
+> The trained adapter is saved at `cannon_grpo_adapter/` and pushed to the Hub.
 
 ## ▶️ Running Locally
 

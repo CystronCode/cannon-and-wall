@@ -1,11 +1,13 @@
 from openenv import Environment
 from pathlib import Path
-from environment.models import Observation
+from environment.models import GameState
 from environment.judge.verifier import verify_cannon, verify_wall
 from environment.judge.reward import cannon_reward, wall_reward
 
 STAGE_FILES = {
-    1: "environment/vulnerable_app/stage_1/app.py"
+    1: "environment/vulnerable_app/stage_1/app.py",
+    2: "environment/vulnerable_app/stage_2/app.py",
+    3: "environment/vulnerable_app/stage_3/app.py",
 }
 GROUND_TRUTH = {
     1: {"vuln_type": "sqli", "line_number_range": [10, 20]}
