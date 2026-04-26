@@ -1,7 +1,12 @@
 name: cannon-and-wall
-version: 1.0.0
+version: 1.1.0
 author: Jairaj S
 theme: self-improvement+multi-agent
+description: >
+  A Red vs Blue adversarial RL environment for training LLMs on cybersecurity reasoning.
+  Two agents (Cannon = attacker, Wall = defender) compete across escalating curriculum
+  stages of a seeded Flask app with OWASP Top 3 vulnerabilities. Rewards are fully
+  deterministic — no LLM-as-judge.
 base_class: Environment
 entry: environment/server.py
 client: client/client.py
@@ -11,3 +16,32 @@ tags:
   - red-team
   - self-play
   - rl
+
+action_space:
+  cannon:
+    type: object
+    properties:
+      agent:         {type: string, const: cannon}
+      vuln_type:     {type: string, enum: [sqli, xss, broken_auth]}
+      line_number:   {type: integer}
+      explanation:   {type: string}
+      proof_of_concept: {type: string}
+  wall:
+    type: object
+    properties:
+      agent:         {type: string, const: wall}
+      patched_code:  {type: string}
+      explanation:   {type: string}
+
+observation_space:
+  type: object
+  properties:
+    source_code:    {type: string, description: "Full Flask app source for the current stage"}
+    round:          {type: integer, description: "Current round number (1-3)"}
+    stage:          {type: integer, description: "Curriculum stage (1-3)"}
+    scores:
+      type: object
+      properties:
+        cannon: {type: number}
+        wall:   {type: number}
+    last_cannon_report: {type: [object, "null"]}

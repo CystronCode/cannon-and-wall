@@ -1,6 +1,7 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-RUN pip install openenv flask fastapi uvicorn httpx gradio requests bandit
 EXPOSE 7860
-CMD ["openenv", "run", "--port", "7860"]
+CMD ["python", "app.py"]

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+flask
+requests
+httpx
+gradio
+bandit
+wandb
